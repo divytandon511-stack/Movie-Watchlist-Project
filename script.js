@@ -1,56 +1,46 @@
 console.log("Movie Watchlist App started")
 
 const API_KEY = "c34de72b";
-
-const searchButton = document.getElementById("searchbutton");
-const searchInput = document.getElementById("searchinput");
-const movieContainer = document.getElementById("moviecontainer")
-
-
-searchButton.addEventListener("click", fetchMovies);
+const movieContainer = document.getElementById("movie-container");
+const loadingMessage = document.getElementById("loading-message");
 
 function fetchMovies() {
-  const query = searchInput.value.trim(); 
+  loadingMessage.style.display = "block";
+  movieContainer.innerHTML = "";
 
-  if (query === "") {
-    movieContainer.innerHTML = "<p>Please enter a movie name</p>";
-    return;
-  }
+  fetch(`https://www.omdbapi.com/?apikey=${API_KEY}&s=batman`)
+    .then((response) => response.json())
+    .then((data) => {
+      loadingMessage.style.display = "none";
 
-  movieContainer.innerHTML = "<p>Loading...</p>";
+      if (data.Response === "False") {
+        movieContainer.innerHTML = "<p>No movies found.</p>";
+        return;
+      }
 
-  fetch(`https://www.omdbapi.com/?apikey=${API_KEY}&s=${query}`)
-  .then((res) => res.json())
-  .then((data) => {
-    if (data.Response === "False") {
-      movieContainer.innerHTML = "<p>No movies found</p>";
-    } else {
-    displayMovies(data.Search);
-    }
-  })
-  .catch(() => {
-    movieContainer.innerHTML = "<p>Something went wrong. Please try again.</p>";
-  });
+      displayMovies(data.Search);
+    })
+    .catch((error) => {
+      loadingMessage.style.display = "none";
+      movieContainer.innerHTML = "<p>Something went wrong while fetching movies.</p>";
+      console.log(error);
+    });
 }
 
 function displayMovies(movies) {
-  movieContainer.innerHTML = "";
-
-  if (!movies) {
-    movieContainer.innerHTML = "<p>No movies found</p>";
-    return;
-  }
-
   movies.forEach((movie) => {
-    const div = document.createElement("div");
+    const card = document.createElement("div");
+    card.classList.add("movie-card");
 
-    div.innerHTML = `
-    <img src="${movie.Poster}" alt="${movie.Title}" />
-    <h3>${movie.Title}</h3>
-    <p>${movie.Year}</p>
+    card.innerHTML = `
+      <img src="${movie.Poster !== "N/A" ? movie.Poster : "https://via.placeholder.com/300x450?text=No+Image"}" alt="${movie.Title}">
+      <h3>${movie.Title}</h3>
+      <p>${movie.Year}</p>
     `;
 
-    movieContainer.appendChild(div);
+    movieContainer.appendChild(card);
   });
 }
+
+fetchMovies();
 
