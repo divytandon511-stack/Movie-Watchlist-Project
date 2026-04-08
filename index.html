@@ -6,15 +6,41 @@
   <title>Movie Watchlist App</title>
   <link rel="stylesheet" href="style.css" />
 </head>
-<body>
+<body class="dark">
   <header>
     <h1>Movie Watchlist App</h1>
-    <p>Browse movies fetched from the OMDb API</p>
+    <p>Search movies and save them to your watchlist</p>
+    <button id="theme-toggle">Toggle Theme</button>
   </header>
 
   <main>
-    <p id="loading-message">Loading movies...</p>
-    <div id="movie-container"></div>
+    <section class="controls">
+      <input type="text" id="search-input" placeholder="Search movies..." />
+      
+      <select id="filter">
+        <option value="all">All Types</option>
+        <option value="movie">Movie</option>
+        <option value="series">Series</option>
+        <option value="episode">Episode</option>
+      </select>
+      <select id="sort">
+        <option value="default">Sort By</option>
+        <option value="year-asc">Year Ascending</option>
+        <option value="year-desc">Year Descending</option>
+        <option value="title-asc">Title A-Z</option>
+        <option value="title-desc">Title Z-A</option>
+      </select>
+    </section>
+
+    <section>
+      <h2>Movie Results</h2>
+      <div id="movie"></div>
+    </section>
+
+    <section>
+      <h2>Your Watchlist</h2>
+      <div id="watchlist"></div>
+    </section>
   </main>
 
   <script src="script.js"></script>
