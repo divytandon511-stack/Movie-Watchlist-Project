@@ -1,239 +1,251 @@
-console.log("Movie Watchlist App Started");
-
 const API_KEY = "c34de72b";
+const BASE_URL = `https://www.omdbapi.com/?apikey=${API_KEY}`;
 
-const movieContainer = document.getElementById("movie");
 const searchInput = document.getElementById("search-input");
-const filterSelect = document.getElementById("filter");
-const sortSelect = document.getElementById("sort");
-const watchlistContainer = document.getElementById("watchlist");
+const searchBtn = document.getElementById("search-btn");
+const filterType = document.getElementById("filter-type");
+const sortType = document.getElementById("sort-type");
+const movieContainer = document.getElementById("movie-container");
+const watchlistContainer = document.getElementById("watchlist-container");
+const loading = document.getElementById("loading");
+const errorBox = document.getElementById("error");
 const themeToggle = document.getElementById("theme-toggle");
+const body = document.body;
 
-let allMovies = [];
+let movies = [];
+let watchlist = JSON.parse(localStorage.getItem("watchlist")) || [];
+let theme = localStorage.getItem("theme") || "dark";
 
-let watchlist = localStorage.getItem("watchlist");
+body.className = theme;
 
-if (watchlist) {
-  watchlist = JSON.parse(watchlist);
-} else {
-  watchlist = [];
+function showLoading() {
+  loading.classList.remove("hidden");
 }
 
+function hideLoading() {
+  loading.classList.add("hidden");
+}
 
-function fetchMovies() {
-  let searchText = searchInput.value;
+function showError(message) {
+  errorBox.textContent = message;
+  errorBox.classList.remove("hidden");
+}
 
-  if (searchText === "") {
-    searchText = "batman";
+function hideError() {
+  errorBox.textContent = "";
+  errorBox.classList.add("hidden");
+}
+
+async function fetchMovies(query) {
+  if (query.trim() === "") {
+    movies = [];
+    hideError();
+    renderMovies();
+    return;
   }
 
-  movieContainer.innerHTML = "<p>Loading...</p>";
+  showLoading();
+  hideError();
 
-  fetch("https://www.omdbapi.com/?apikey=" + API_KEY + "&s=" + searchText)
-    .then(function(response) {
-      return response.json();
-    })
-    .then(function(data) {
-      if (data.Response === "False") {
-        movieContainer.innerHTML = "<p>No movies found.</p>";
-        allMovies = [];
-        return;
+  try {
+    const response = await fetch(
+      `${BASE_URL}&s=${encodeURIComponent(query)}`
+    );
+
+    const data = await response.json();
+
+    console.log(data);
+
+    if (data.Response === "True") {
+      movies = data.Search;
+    } else {
+      movies = [];
+
+      if (data.Error === "Movie not found!") {
+        hideError();
+      } else {
+        showError(data.Error || "Something went wrong.");
       }
+    }
+  } catch (error) {
+    movies = [];
+    showError("Something went wrong while fetching movies.");
+    console.log(error);
+  }
 
-      allMovies = data.Search;
-
-      displayMovies();
-      displayWatchlist();
-    })
-    .catch(function(error) {
-      movieContainer.innerHTML = "<p>Error fetching movies.</p>";
-      console.log(error);
-    });
+  hideLoading();
+  renderMovies();
 }
 
+function getFilteredAndSortedMovies() {
+  let result = [...movies];
 
-function displayMovies() {
-
-  let filteredMovies;
-
-  if (filterSelect.value === "all") {
-    filteredMovies = allMovies;
-  } else {
-    filteredMovies = allMovies.filter(function(movie) {
-      return movie.Type === filterSelect.value;
+  if (filterType.value !== "all") {
+    result = result.filter(function (movie) {
+      return movie.Type === filterType.value;
     });
   }
 
-
-  let sortedMovies = [...filteredMovies];
-
-
-  if (sortSelect.value === "year-asc") {
-    sortedMovies.sort(function(a, b) {
+  if (sortType.value === "title-asc") {
+    result.sort(function (a, b) {
+      return a.Title.localeCompare(b.Title);
+    });
+  } else if (sortType.value === "title-desc") {
+    result.sort(function (a, b) {
+      return b.Title.localeCompare(a.Title);
+    });
+  } else if (sortType.value === "year-asc") {
+    result.sort(function (a, b) {
       return Number(a.Year) - Number(b.Year);
     });
-  }
-
-  if (sortSelect.value === "year-desc") {
-    sortedMovies.sort(function(a, b) {
+  } else if (sortType.value === "year-desc") {
+    result.sort(function (a, b) {
       return Number(b.Year) - Number(a.Year);
     });
   }
 
-  if (sortSelect.value === "title-asc") {
-    sortedMovies.sort(function(a, b) {
-      if (a.Title < b.Title) {
-        return -1;
-      } else if (a.Title > b.Title) {
-        return 1;
-      } else {
-        return 0;
-      }
-    });
+  return result;
+}
+
+function isInWatchlist(imdbID) {
+  return watchlist.find(function (movie) {
+    return movie.imdbID === imdbID;
+  });
+}
+
+function saveWatchlist() {
+  localStorage.setItem("watchlist", JSON.stringify(watchlist));
+}
+
+function addToWatchlist(movie) {
+  if (!isInWatchlist(movie.imdbID)) {
+    watchlist.push(movie);
+    saveWatchlist();
+    renderWatchlist();
+    renderMovies();
   }
+}
 
-  if (sortSelect.value === "title-desc") {
-    sortedMovies.sort(function(a, b) {
-      if (a.Title > b.Title) {
-        return -1;
-      } else if (a.Title < b.Title) {
-        return 1;
-      } else {
-        return 0;
-      }
-    });
+function removeFromWatchlist(imdbID) {
+  watchlist = watchlist.filter(function (movie) {
+    return movie.imdbID !== imdbID;
+  });
+
+  saveWatchlist();
+  renderWatchlist();
+  renderMovies();
+}
+
+function addToWatchlistById(imdbID) {
+  const selectedMovie = movies.find(function (movie) {
+    return movie.imdbID === imdbID;
+  });
+
+  if (selectedMovie) {
+    addToWatchlist(selectedMovie);
   }
+}
 
-
-  if (sortedMovies.length === 0) {
-    movieContainer.innerHTML = "<p>No movies found.</p>";
-    return;
-  }
-
-
+function renderMovies() {
   movieContainer.innerHTML = "";
 
+  const finalMovies = getFilteredAndSortedMovies();
 
-  sortedMovies.forEach(function(movie) {
-
-    let isInWatchlist = watchlist.find(function(item) {
-      return item.imdbID === movie.imdbID;
-    });
-
-    let poster = movie.Poster;
-
-    if (poster === "N/A") {
-      poster = "https://via.placeholder.com/300x450?text=No+Image";
-    }
-
-    let card = document.createElement("div");
-    card.classList.add("movie-card");
-
-    card.innerHTML = `
-      <img src="${poster}" alt="${movie.Title}">
-      <h3>${movie.Title}</h3>
-      <p>Year: ${movie.Year}</p>
-      <p>Type: ${movie.Type}</p>
-      <button onclick="toggleWatchlist('${movie.imdbID}')">
-        ${isInWatchlist ? "Remove From Watchlist" : "Add To Watchlist"}
-      </button>
-    `;
-
-    movieContainer.appendChild(card);
-  });
-}
-
-
-function toggleWatchlist(id) {
-
-  let selectedMovie = allMovies.find(function(movie) {
-    return movie.imdbID === id;
-  });
-
-  let alreadyExists = watchlist.find(function(movie) {
-    return movie.imdbID === id;
-  });
-
-
-  if (alreadyExists) {
-    watchlist = watchlist.filter(function(movie) {
-      return movie.imdbID !== id;
-    });
-  } else {
-    watchlist.push(selectedMovie);
-  }
-
-
-  localStorage.setItem("watchlist", JSON.stringify(watchlist));
-
-  displayMovies();
-  displayWatchlist();
-}
-
-
-
-function displayWatchlist() {
-
-  if (watchlist.length === 0) {
-    watchlistContainer.innerHTML = "<p>Watchlist is empty.</p>";
+  if (finalMovies.length === 0) {
+    movieContainer.innerHTML =
+      `<p class="empty-text">No movies found.</p>`;
     return;
   }
 
+  const movieCards = finalMovies.map(function (movie) {
+    const poster =
+      movie.Poster !== "N/A"
+        ? movie.Poster
+        : "https://via.placeholder.com/200x280?text=No+Image";
 
-  watchlistContainer.innerHTML = "";
+    const alreadyAdded = isInWatchlist(movie.imdbID);
 
+    return `
+      <div class="movie-card">
+        <img src="${poster}" alt="${movie.Title}" />
+        <h3>${movie.Title}</h3>
+        <p><strong>Year:</strong> ${movie.Year}</p>
+        <p><strong>Type:</strong> ${movie.Type}</p>
 
-  watchlist.forEach(function(movie) {
-
-    let poster = movie.Poster;
-
-    if (poster === "N/A") {
-      poster = "https://via.placeholder.com/300x450?text=No+Image";
-    }
-
-    let card = document.createElement("div");
-    card.classList.add("movie-card");
-
-    card.innerHTML = `
-      <img src="${poster}" alt="${movie.Title}">
-      <h3>${movie.Title}</h3>
-      <p>Year: ${movie.Year}</p>
-      <p>Type: ${movie.Type}</p>
-      <button onclick="toggleWatchlist('${movie.imdbID}')">
-        Remove
-      </button>
+        <button onclick="${
+          alreadyAdded
+            ? `removeFromWatchlist('${movie.imdbID}')`
+            : `addToWatchlistById('${movie.imdbID}')`
+        }">
+          ${alreadyAdded ? "Remove from Watchlist" : "Add to Watchlist"}
+        </button>
+      </div>
     `;
-
-    watchlistContainer.appendChild(card);
   });
+
+  movieContainer.innerHTML = movieCards.join("");
 }
 
+function renderWatchlist() {
+  watchlistContainer.innerHTML = "";
 
-
-searchInput.addEventListener("input", function() {
-  fetchMovies();
-});
-
-filterSelect.addEventListener("change", function() {
-  displayMovies();
-});
-
-sortSelect.addEventListener("change", function() {
-  displayMovies();
-});
-
-themeToggle.addEventListener("click", function() {
-
-  if (document.body.classList.contains("dark")) {
-    document.body.classList.remove("dark");
-    document.body.classList.add("light");
-  } else {
-    document.body.classList.remove("light");
-    document.body.classList.add("dark");
+  if (watchlist.length === 0) {
+    watchlistContainer.innerHTML =
+      `<p class="empty-text">Your watchlist is empty.</p>`;
+    return;
   }
 
+  const watchlistCards = watchlist.map(function (movie) {
+    const poster =
+      movie.Poster !== "N/A"
+        ? movie.Poster
+        : "https://via.placeholder.com/200x280?text=No+Image";
+
+    return `
+      <div class="watchlist-card">
+        <img src="${poster}" alt="${movie.Title}" />
+        <h3>${movie.Title}</h3>
+        <p><strong>Year:</strong> ${movie.Year}</p>
+        <p><strong>Type:</strong> ${movie.Type}</p>
+
+        <button onclick="removeFromWatchlist('${movie.imdbID}')">
+          Remove
+        </button>
+      </div>
+    `;
+  });
+
+  watchlistContainer.innerHTML = watchlistCards.join("");
+}
+
+function handleSearch() {
+  const query = searchInput.value;
+  fetchMovies(query);
+}
+
+function toggleTheme() {
+  if (body.classList.contains("dark")) {
+    body.classList.remove("dark");
+    body.classList.add("light");
+    localStorage.setItem("theme", "light");
+  } else {
+    body.classList.remove("light");
+    body.classList.add("dark");
+    localStorage.setItem("theme", "dark");
+  }
+}
+
+searchBtn.addEventListener("click", handleSearch);
+
+searchInput.addEventListener("keydown", function (event) {
+  if (event.key === "Enter") {
+    handleSearch();
+  }
 });
 
+filterType.addEventListener("change", renderMovies);
+sortType.addEventListener("change", renderMovies);
+themeToggle.addEventListener("click", toggleTheme);
 
-fetchMovies();
-displayWatchlist();
+renderWatchlist();
+renderMovies();

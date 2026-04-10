@@ -1,75 +1,234 @@
-body {
-  font-family: Arial, sans-serif;
+* {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  transition: 0.3s;
 }
 
 body.dark {
-  background-color: #111;
+  background-color: #000000;
   color: white;
 }
 
 body.light {
   background-color: #f5f5f5;
-  color: black;
+  color: #111;
 }
 
-header {
-  text-align: center;
-  padding: 20px;
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 30px;
+  gap: 20px;
+  background-color: #000;
+  border-bottom: 1px solid #222;
+}
+
+.header h1 {
+  margin-bottom: 8px;
+}
+
+body.dark .header h1,
+body.dark .header p {
+  color: white;
+}
+
+body.light .header {
+  background-color: white;
+  border-bottom: 1px solid #ddd;
+}
+
+body.light .header h1,
+body.light .header p {
+  color: #111;
+}
+
+.theme-btn,
+#search-btn {
+  padding: 10px 14px;
+  border: none;
+  cursor: pointer;
+  border-radius: 6px;
+  font-weight: bold;
+}
+
+.theme-btn {
+  background-color: #2563eb;
+  color: white;
+}
+
+#search-btn {
+  background-color: #16a34a;
+  color: white;
+}
+
+.main-layout {
+  display: flex;
+  gap: 20px;
+  padding: 20px 30px;
+}
+
+.left-section {
+  flex: 3;
+}
+
+.right-section {
+  flex: 1;
+  min-width: 260px;
+  background-color: #0d0d0d;
+  padding: 16px;
+  border-radius: 10px;
+  border: 1px solid #222;
+  height: fit-content;
+  position: sticky;
+  top: 20px;
+}
+
+body.light .right-section {
+  background-color: white;
+  border: 1px solid #ddd;
 }
 
 .controls {
   display: flex;
-  gap: 10px;
-  justify-content: center;
-  margin: 20px 0;
   flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
 }
 
-input,
-select,
-button {
+.controls input,
+.controls select {
   padding: 10px;
-  font-size: 16px;
+  border-radius: 6px;
+  border: 1px solid #555;
+  outline: none;
 }
 
-button {
-  cursor: pointer;
+.controls input {
+  width: 220px;
 }
 
-#movie,
-#watchlist {
-  width: 90%;
-  margin: 20px auto;
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+.movie-container,
+.watchlist-container {
+  display: flex;
+  flex-wrap: wrap;
   gap: 16px;
+  margin-top: 16px;
 }
 
-.movie-card {
-  border: 1px solid gray;
+.movie-card,
+.watchlist-card {
+  width: 200px;
+  background-color: #111111;
+  border: 1px solid #222;
+  border-radius: 10px;
+  overflow: hidden;
   padding: 12px;
-  text-align: center;
+  transition: 0.3s;
+}
+
+body.light .movie-card,
+body.light .watchlist-card {
+  background-color: white;
+  border: 1px solid #ddd;
+}
+
+.movie-card:hover,
+.watchlist-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.15);
+}
+
+.movie-card img,
+.watchlist-card img {
+  width: 100%;
+  height: 280px;
+  object-fit: cover;
   border-radius: 8px;
 }
 
-.movie-card img {
+.movie-card h3,
+.watchlist-card h3 {
+  font-size: 18px;
+  margin: 10px 0 6px;
+}
+
+.movie-card p,
+.watchlist-card p {
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+
+.movie-card button,
+.watchlist-card button {
+  margin-top: 8px;
+  padding: 8px 10px;
+  border: none;
+  cursor: pointer;
+  border-radius: 6px;
   width: 100%;
-  height: 300px;
-  object-fit: cover;
+  background-color: #dc2626;
+  color: white;
+  font-weight: bold;
+}
+
+.watchlist-card button {
+  background-color: #b91c1c;
+}
+.message {
+  margin: 12px 0;
+  padding: 12px;
+  border-radius: 6px;
+}
+
+.error {
+  background-color: #7f1d1d;
+  color: white;
+}
+
+.hidden {
+  display: none;
+}
+
+.empty-text {
+  font-size: 15px;
+  opacity: 0.85;
+  margin-top: 10px;
 }
 
 @media (max-width: 900px) {
-  #movie,
-  #watchlist {
-    grid-template-columns: 1fr 1fr;
+  .main-layout {
+    flex-direction: column;
+  }
+
+  .right-section {
+    position: static;
   }
 }
 
 @media (max-width: 600px) {
-  #movie,
-  #watchlist {
-    grid-template-columns: 1fr;
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .controls {
+    flex-direction: column;
+  }
+
+  .controls input,
+  .controls select,
+  #search-btn {
+    width: 100%;
+  }
+
+  .movie-card,
+  .watchlist-card {
+    width: 100%;
   }
 }

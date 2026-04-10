@@ -7,40 +7,54 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body class="dark">
-  <header>
-    <h1>Movie Watchlist App</h1>
-    <p>Search movies and save them to your watchlist</p>
-    <button id="theme-toggle">Toggle Theme</button>
+  <header class="header">
+    <div>
+      <h1>Movie Watchlist App</h1>
+      <p>Search movies and save them to your watchlist</p>
+    </div>
+    <button id="theme-toggle" class="theme-btn">Toggle Theme</button>
   </header>
 
-  <main>
-    <section class="controls">
-      <input type="text" id="search-input" placeholder="Search movies..." />
-      
-      <select id="filter">
-        <option value="all">All Types</option>
-        <option value="movie">Movie</option>
-        <option value="series">Series</option>
-        <option value="episode">Episode</option>
-      </select>
-      <select id="sort">
-        <option value="default">Sort By</option>
-        <option value="year-asc">Year Ascending</option>
-        <option value="year-desc">Year Descending</option>
-        <option value="title-asc">Title A-Z</option>
-        <option value="title-desc">Title Z-A</option>
-      </select>
+  <main class="main-layout">
+    <section class="left-section">
+      <div class="controls">
+        <input
+          type="text"
+          id="search-input"
+          placeholder="Search movies..."
+        />
+
+        <select id="filter-type">
+          <option value="all">All Types</option>
+          <option value="movie">Movie</option>
+          <option value="series">Series</option>
+          <option value="episode">Episode</option>
+        </select>
+
+        <select id="sort-type">
+          <option value="default">Sort</option>
+          <option value="title-asc">Title A-Z</option>
+          <option value="title-desc">Title Z-A</option>
+          <option value="year-asc">Year Ascending</option>
+          <option value="year-desc">Year Descending</option>
+        </select>
+
+        <button id="search-btn">Search</button>
+      </div>
+
+      <div id="loading" class="message hidden">Loading movies...</div>
+      <div id="error" class="message error hidden"></div>
+
+      <section>
+        <h2>Search Results</h2>
+        <div id="movie-container" class="movie-container"></div>
+      </section>
     </section>
 
-    <section>
-      <h2>Movie Results</h2>
-      <div id="movie"></div>
-    </section>
-
-    <section>
+    <aside class="right-section">
       <h2>Your Watchlist</h2>
-      <div id="watchlist"></div>
-    </section>
+      <div id="watchlist-container" class="watchlist-container"></div>
+    </aside>
   </main>
 
   <script src="script.js"></script>
