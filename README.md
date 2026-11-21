@@ -69,3 +69,44 @@ Deployed using Vercel / Netlify
 
 ## Author
 Divy Tandon
+
+## NPM Package Integration — pathcase-audit
+
+This project integrates my published NPM package, **[pathcase-audit](https://www.npmjs.com/package/pathcase-audit)**, to detect case-insensitive filename and directory conflicts.
+
+### Installation
+
+Requires Node.js 22 or newer.
+
+```bash
+npm install
+```
+
+### Check Project Files
+
+```bash
+npm run check:paths
+```
+
+This scans the Movie Watchlist project for filename and folder case collisions.
+
+### Run Integration Demo
+
+```bash
+node demo/pathcase-demo.mjs
+```
+
+The demonstration uses two functions:
+
+- `checkPaths()` — detects filename collisions before files are created.
+- `scanDirectory()` — scans the actual project directory.
+
+### GitHub Actions
+
+The project uses GitHub Actions to automatically run pathcase-audit whenever code is pushed or a pull request is opened.
+
+### Links
+
+- **NPM Package:** https://www.npmjs.com/package/pathcase-audit
+- **Package Repository:** https://github.com/divytandon511-stack/pathcase-audit
+- **Demo Repository:** https://github.com/divytandon511-stack/Movie-Watchlist-Project

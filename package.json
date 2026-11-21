@@ -1,0 +1,25 @@
+{
+  "name": "movie-watchlist-project",
+  "version": "1.0.0",
+  "description": "Movie Watchlist App is a web application built using HTML, CSS, and JavaScript. It allows users to search for movies using the OMDb API and add their favorite movies to a personal watchlist.",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "check:paths": "pathcase-audit ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/divytandon511-stack/Movie-Watchlist-Project.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/divytandon511-stack/Movie-Watchlist-Project/issues"
+  },
+  "homepage": "https://github.com/divytandon511-stack/Movie-Watchlist-Project#readme",
+  "devDependencies": {
+    "pathcase-audit": "^0.1.0"
+  }
+}

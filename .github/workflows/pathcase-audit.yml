@@ -1,0 +1,29 @@
+
+name: Pathcase Audit
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check project paths
+        run: npm run check:paths
+
+      - name: Run package integration demo
+        run: node demo/pathcase-demo.mjs
